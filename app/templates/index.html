@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <title>Abnormal Activity Detector</title>
+
+    <style>
+        body, html {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .background {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-image: url(/media/bg.png);
+            background-repeat: repeat-y;
+            /* Full height */
+            height: 100%;
+
+            /* Center and scale the image nicely */
+            background-position: center;
+            background-size: cover;
+            opacity: 0.4;
+            filter: alpha(opacity=40);
+
+            width: 100%;
+        }
+
+        #about_div {
+            border-radius: 25px;
+            background: url(/media/paper.gif);
+            background-position: left top;
+            background-repeat: repeat;
+            padding: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+
+<div class="background">
+
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <h1><strong>Abnormal Activity Detector</strong></h1>
+    </div>
+    <br/>
+    <br/>
+
+    <div class="row">
+
+        <div class="col-md-12">
+
+            <nav class="flexible-navbar navbar navbar-expand-lg scrolling-navbar navbar-dark bg-dark">
+
+
+                <button onClick="navToggle();" class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+
+                    <span class="sr-only">Toggle navigation</span>
+
+                    <span class="navbar-toggler-icon icon-bar"></span>
+
+                    <span class="navbar-toggler-icon icon-bar"></span>
+
+                    <span class="navbar-toggler-icon icon-bar"></span>
+
+                </button>
+
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent" data-color="azure">
+
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item"><a class="nav-link" href="#" id="about_btn">About</a>
+                        </li>
+
+                        <li class="nav-item"><a class="nav-link" href="#" id="video_accuracy_btn">Video Accuracy</a>
+                        </li>
+
+                        <li class="nav-item"><a class="nav-link" href="#" id="test_video_btn">Test Video</a>
+                        </li>
+
+                    </ul>
+
+
+                </div>
+
+            </nav>
+
+        </div>
+
+    </div>
+    <br/>
+
+    <div class="row" id="about_div">
+        <h4 class="justify-content-center">
+            In recent years, the number of surveillance cameras installed to monitor private and public
+            spaces has increased rapidly. The demand has raised for smarter video
+            surveillance of public and private spaces using intelligent vision systems which can differentiate between
+            'suspicious' and 'unsuspicious' behaviors according to the human observer.
+            Generally, the video streams are constantly recorded or monitored by operators.<br/><br/>
+            In these cases, an intelligent system can give more accurate performance than a human. We have proposed a method called motion influence map for representing human activities. Optical-flow is computed for each pixel in a frame that are processed sequentially. The key feature of the
+            proposed motion
+            influence map is that it effectively reflects the motion characteristics such as movement speed, movement direction, and size of the objects or subjects and their interactions within a frame sequence. It further extracts frames of high motion influence values and compares with the
+            testing frames to automatically detect suspicious activities.
+        </h4>
+    </div>
+    <div id="accuracy_div">
+
+        <div id="resultsBlock" style="display:block; overflow-y: scroll;overflow-x: hidden; max-height: 400px;">
+            <center><h1>Result Analysis</h1></center>
+            <br/>
+            <div class="row justify-content-center">
+
+                <h1>Performance Graph</h1>
+                <img class="col-md-12" src="/media/output/performance_graph.png" alt="Performance Graph"/>
+
+            </div>
+
+
+            <div class="row justify-content-center">
+                <h1>Confusion Matrix</h1>
+                <img class="col-md-12" src="/media/output/confusion_matrix.png" alt="confusion_matrix"/>
+            </div>
+            <br/>
+            <div class="row justify-content-center">
+            </div>
+        </div>
+    </div>
+    <div id="test_video_div" style="display:block; overflow-y: scroll;overflow-x: hidden; max-height: 400px;">
+
+        <center>
+            <form action="train_classifier" method="get" id="trainForm">
+                <button type="submit" class="btn btn-primary">Train Classifier</button>
+            </form>
+            <br/>
+            <div class="row justify-content-center">
+                <div class="col-md-5">
+                    <form action="detect_abnormal_activity/" method="post" enctype="multipart/form-data" id="detect_abnormal_activity">
+                        <div class="form-group">
+                            <label class="col-form-label">Please upload video file :&nbsp;</label>
+                            {% csrf_token %}
+                            <input type="file" name="video_file" class="form-control" accept="video/*" required/>
+                        </div>
+
+                        <div class="form-group text-center">
+                            <button class="btn btn-success btn-lg" type="submit">Process</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </center>
+        <hr class="mt-0 mb-4">
+        {% if success %}
+
+            {% if file %}
+                <div>
+                    <center><h1>Unusual Activity Detected</h1></center>
+                    <br/>
+                    <div class="row justify-content-center">
+
+                        <img class="col-md-6" src="/media/output/unusual_frame_59.jpg" alt="{{ file }}" height="300px" width="300px"/>
+                    </div>
+                </div>
+
+            {% endif %}
+
+        {% endif %}
+        <br/>
+        <hr class="mt-0 mb-4">
+    </div>
+</div>
+
+
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+
+    <script>
+        $('#about_div').hide();
+        $('#accuracy_div').hide();
+        $('#test_video_div').fadeIn("slow", function () {
+            // Animation complete
+        });
+    </script>
+    <script>
+        $('#about_btn').click(function (e) {
+            $('#test_video_div').hide();
+            $('#accuracy_div').hide();
+            $('#about_div').fadeIn("slow", function () {
+                // Animation complete
+            });
+        });
+        $('#video_accuracy_btn').click(function (e) {
+            $('#about_div').hide();
+            $('#test_video_div').hide();
+            $('#accuracy_div').fadeIn("slow", function () {
+                // Animation complete
+            });
+        });
+        $('#test_video_btn').click(function (e) {
+            $('#about_div').hide();
+            $('#accuracy_div').hide();
+            $('#test_video_div').fadeIn("slow", function () {
+                // Animation complete
+            });
+        });
+    </script>
+
+</body>
+</html>
